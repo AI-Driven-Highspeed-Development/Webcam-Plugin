@@ -1,0 +1,4 @@
+version: 0.0.1
+folder_path: plugins/Webcam-Plugin
+type: plugin
+requirements: []
