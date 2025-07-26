@@ -4,8 +4,7 @@ from typing import Dict, Optional, List
 from .webcam import Webcam
 
 # Add path to import config manager
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'managers', 'config_manager'))
-from managers.config_manager import ConfigManager
+from managers.config_manager.config_manager import ConfigManager
 
 
 class WebcamPlugin:

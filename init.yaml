@@ -1,4 +1,5 @@
 version: 0.0.1
 folder_path: plugins/webcam_plugin
 type: plugin
-requirements: []
+requirements: 
+  - https://github.com/AI-Driven-Highspeed-Development/Config-Manager.git
