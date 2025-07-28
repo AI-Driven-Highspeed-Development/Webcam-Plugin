@@ -1,5 +1,5 @@
 from typing import Dict, Optional, List
-from webcam import Webcam
+from .webcam import Webcam
 
 # Add path to import config manager
 from managers.config_manager.config_manager import ConfigManager
