@@ -1,6 +1,7 @@
 {
-    "devices": {
-        "cam01": {
+    "devices": [
+        {
+            "name": "cam01",
             "device_id": 0,
             "width": 1280,
             "height": 720,
@@ -8,7 +9,8 @@
             "buffer_size": 1,
             "debug_mode": true
         },
-        "cam02": {
+        {
+            "name": "cam02",
             "device_id": 1,
             "width": 640,
             "height": 480,
@@ -16,7 +18,8 @@
             "buffer_size": 1,
             "debug_mode": false
         },
-        "cam03": {
+        {
+            "name": "cam03",
             "device_id": 2,
             "width": 1920,
             "height": 1080,
@@ -24,5 +27,5 @@
             "buffer_size": 2,
             "debug_mode": false
         }
-    }
+    ]
 }

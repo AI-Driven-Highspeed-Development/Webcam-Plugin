@@ -1,11 +1,18 @@
 import cv2
 import numpy as np
-from typing import Tuple
+from typing import Tuple, Optional, Union, Callable
 from plugins.cv2_visualization_plugin.gui_component import GuiComponent
 
 class GUIFrames(GuiComponent):
     """A component to display a video frame."""
-    def __init__(self, name: str, parent: GuiComponent, position: Tuple[int, int] = (0, 0), width: int = 640, height: int = 480):
+    def __init__(
+        self, 
+        name: str, 
+        parent: Optional[GuiComponent] = None, 
+        position: Tuple[int, int] = (0, 0), 
+        width: Union[int, Callable[[int], int], str] = 640, 
+        height: Union[int, Callable[[int], int], str] = 480
+    ):
         """Initializes the component without a frame."""
         super().__init__(name, width, height, parent, position)
 
