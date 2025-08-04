@@ -38,7 +38,6 @@ class WebcamPlugin:
             config_updated = False
                 
             # Process each device configuration
-            updated_devices = []
             for i, device in enumerate(devices_config):
                 
                 if self._has_hardware_signature(device):
@@ -49,13 +48,10 @@ class WebcamPlugin:
                     # No signature - generate one and save it
                     updated_device, changed = self._generate_camera_signature(device)
                     config_updated |= changed
-                
-                updated_devices.append(updated_device)
 
-            # Update the raw config with the modified devices
+            # Save config if any changes were made
             if config_updated:
-                self.config_manager.raw_config['webcam_plugin']['devices'] = updated_devices
-                self.config_manager.save_config(self.config_manager.raw_config)
+                self.config_manager.save_config()
                 print("WebcamPlugin: Updated configuration saved")
 
             print(f"WebcamPlugin: Successfully loaded {len(self.cameras)} cameras")
@@ -65,53 +61,47 @@ class WebcamPlugin:
             # Fallback: create a default camera
             self.cameras['default'] = Webcam(name="default_camera")
     
-    def _has_hardware_signature(self, device: dict) -> bool:
+    def _has_hardware_signature(self, device) -> bool:
         """Check if device configuration has a valid hardware signature."""
-        return 'hardware_signature' in device and device['hardware_signature']
+        return hasattr(device, 'hardware_signature') and device.hardware_signature
     
-    def _load_camera_by_signature(self, device: dict) -> tuple[dict, bool]:
+    def _load_camera_by_signature(self, device) -> tuple[object, bool]:
         """Load camera by hardware signature and update device_id if needed."""
-        device_name = device['name']
-        configured_device_id = device['device_id']
-        target_signature = device['hardware_signature']
-        
-        # Create a copy of the device config to modify
-        updated_device = device.copy()
+        device_name = device.name
+        configured_device_id = device.device_id
+        target_signature = device.hardware_signature
         
         actual_device_id = self.camera_identifier.find_camera_by_signature(target_signature)
         
         if actual_device_id is None:
             print(f"WebcamPlugin: Camera '{device_name}' with signature '{target_signature}' not found")
-            return updated_device, False
+            return device, False
         
         # Update device_id in config if it changed
         config_changed = False
         if actual_device_id != configured_device_id:
-            updated_device['device_id'] = actual_device_id
+            device.device_id = actual_device_id
             config_changed = True
             print(f"WebcamPlugin: Updated device_id for '{device_name}' from {configured_device_id} to {actual_device_id}")
         
         # Create camera instance
-        if self._create_camera_instance(updated_device, actual_device_id, target_signature):
+        if self._create_camera_instance(device, actual_device_id, target_signature):
             print(f"WebcamPlugin: Found camera '{device_name}' by signature at device_id {actual_device_id}")
         
-        return updated_device, config_changed
+        return device, config_changed
     
-    def _generate_camera_signature(self, device: dict) -> tuple[dict, bool]:
+    def _generate_camera_signature(self, device) -> tuple[object, bool]:
         """Generate hardware signature for device and save it."""
-        device_name = device['name']
-        configured_device_id = device['device_id']
-        
-        # Create a copy of the device config to modify
-        updated_device = device.copy()
+        device_name = device.name
+        configured_device_id = device.device_id
         
         try:
             # Create camera instance first
             camera = Webcam(
                 device_id=configured_device_id,
-                width=device['width'],
-                height=device['height'],
-                buffer_size=device['buffer_size'],
+                width=device.width,
+                height=device.height,
+                buffer_size=device.buffer_size,
                 name=device_name
             )
             
@@ -120,29 +110,29 @@ class WebcamPlugin:
             signature = camera_info['unique_signature']
             
             # Update config and store camera
-            updated_device['hardware_signature'] = signature
+            device.hardware_signature = signature
             self.cameras[device_name] = camera
             self.camera_signatures[device_name] = signature
             
             print(f"WebcamPlugin: Generated signature for '{device_name}' at device_id {configured_device_id}")
             print(f"  Hardware signature: {signature}")
             
-            return updated_device, True  # Config was updated
+            return device, True  # Config was updated
             
         except Exception as e:
             print(f"WebcamPlugin: Failed to create camera '{device_name}': {e}")
-            return updated_device, False
+            return device, False
     
-    def _create_camera_instance(self, device: dict, device_id: int, signature: str) -> bool:
+    def _create_camera_instance(self, device, device_id: int, signature: str) -> bool:
         """Create camera instance and store it."""
-        device_name = device['name']
+        device_name = device.name
         
         try:
             camera = Webcam(
                 device_id=device_id,
-                width=device['width'],
-                height=device['height'],
-                buffer_size=device['buffer_size'],
+                width=device.width,
+                height=device.height,
+                buffer_size=device.buffer_size,
                 name=device_name
             )
             
@@ -183,9 +173,9 @@ class WebcamPlugin:
             devices_config = webcam_config.devices
             
             for device in devices_config:
-                device_name = device['name']
+                device_name = device.name
                 if device_name in self.camera_signatures:
-                    device['hardware_signature'] = self.camera_signatures[device_name]
+                    device.hardware_signature = self.camera_signatures[device_name]
             
             # Save the updated configuration
             self.config_manager.save_config(self.config_manager.raw_config)
