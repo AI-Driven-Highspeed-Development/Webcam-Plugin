@@ -5,6 +5,7 @@ import json
 from typing import Dict, List, Optional, Tuple
 import platform
 from abc import ABC, abstractmethod
+from utils.logger_util.logger import get_logger
 
 class CameraIdentifier(ABC):
     """
@@ -14,13 +15,15 @@ class CameraIdentifier(ABC):
     
     def __init__(self):
         self.system = platform.system().lower()
+        self.logger = get_logger("CameraIdentifier")
         
-    def get_camera_info(self, device_id: int) -> Dict[str, str]:
+    def get_camera_info(self, device_id: int, cap: cv2.VideoCapture) -> Dict[str, str]:
         """
         Get comprehensive camera information for identification.
         
         Args:
             device_id: OpenCV device ID
+            cap: OpenCV VideoCapture object
             
         Returns:
             Dictionary with camera identification information
@@ -37,8 +40,6 @@ class CameraIdentifier(ABC):
             'unique_signature': ''
         }
         
-        # Get basic OpenCV properties
-        cap = cv2.VideoCapture(device_id)
         if cap.isOpened():
             # Create a resolution signature
             width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -83,13 +84,13 @@ class CameraIdentifier(ABC):
         
         # Get available video devices first
         available_devices = self.get_available_video_devices()
-        print(f"Found video devices: {available_devices}")
+        self.logger.info(f"Found video devices: {available_devices}")
         
         # Test each available device
         for device_id in available_devices:
             cap = cv2.VideoCapture(device_id)
             if cap.isOpened():
-                info = self.get_camera_info(device_id)
+                info = self.get_camera_info(device_id, cap)
                 cap.release()
                 
                 # Use unique signature as key, fallback to device_id
@@ -153,7 +154,7 @@ class LinuxCameraIdentifier(CameraIdentifier):
                 pass
                 
         except Exception as e:
-            print(f"Error getting Linux camera info: {e}")
+            self.logger.error(f"Error getting Linux camera info: {e}")
     
     def get_available_video_devices(self) -> List[int]:
         """Get a list of all available /dev/video[x] device IDs."""
@@ -194,7 +195,7 @@ class MacOSCameraIdentifier(CameraIdentifier):
                     info['serial_number'] = camera.get('serial_num', '')
                     
         except Exception as e:
-            print(f"Error getting macOS camera info: {e}")
+            self.logger.error(f"Error getting macOS camera info: {e}")
     
     def get_available_video_devices(self) -> List[int]:
         """Get available video devices by testing OpenCV device IDs."""
@@ -229,7 +230,7 @@ class WindowsCameraIdentifier(CameraIdentifier):
             # - or DirectShow API access
             
         except Exception as e:
-            print(f"Error getting Windows camera info: {e}")
+            self.logger.error(f"Error getting Windows camera info: {e}")
     
     def get_available_video_devices(self) -> List[int]:
         """Get available video devices by testing OpenCV device IDs."""
@@ -264,5 +265,5 @@ def create_camera_identifier() -> CameraIdentifier:
         return WindowsCameraIdentifier()
     else:
         # Fallback to Linux implementation for unknown systems
-        print(f"Unknown system '{system}', using Linux camera identifier")
+        get_logger("CameraIdentifier").warning(f"Unknown system '{system}', using Linux camera identifier")
         return LinuxCameraIdentifier()

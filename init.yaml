@@ -4,3 +4,4 @@ type: plugin
 requirements: 
   - https://github.com/AI-Driven-Highspeed-Development/Config-Manager.git
   - https://github.com/AI-Driven-Highspeed-Development/CV2-Visualization-Plugin.git
+  - https://github.com/AI-Driven-Highspeed-Development/Logger-Util.git

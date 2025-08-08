@@ -5,6 +5,7 @@
             "device_id": 0,
             "width": 1280,
             "height": 720,
+            "orientation": 0.0,
             "fps": 30,
             "buffer_size": 1,
             "debug_mode": true
@@ -14,6 +15,7 @@
             "device_id": 1,
             "width": 640,
             "height": 480,
+            "orientation": 0.0,
             "fps": 24,
             "buffer_size": 1,
             "debug_mode": false
@@ -23,6 +25,7 @@
             "device_id": 2,
             "width": 1920,
             "height": 1080,
+            "orientation": 0.0,
             "fps": 15,
             "buffer_size": 2,
             "debug_mode": false
